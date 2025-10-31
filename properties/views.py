@@ -8,6 +8,6 @@ def home(request):
     return render(request, 'properties/home.html')
 
 @cache_page(60 * 15) 
-def properties_list(request):
+def property_list(request):
     properties = Property.objects.all()
-    return JsonResponse({'poperties':list(properties.values())})
+    return JsonResponse({'data':list(properties.values())})

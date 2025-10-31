@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import psycopg2
+from psycopg2 import OperationalError
 
 # Load environment variables from .env file
 load_dotenv()
@@ -44,9 +46,14 @@ INSTALLED_APPS = [
     'properties',
     'allauth',
     'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.provider.google',
     'debug_toolbar',
 
 ]
+
+SITE_ID = 1
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,22 +90,39 @@ WSGI_APPLICATION = 'alx_backend_caching_property_listings.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
 
-'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'default_db_name'), # Use a fallback value if var is missing
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'), # Default PostgreSQL port, change if different
-    
-    }             
+# Default to SQLite
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+# Try connecting to PostgreSQL — if available, switch to it
+try:
+    conn = psycopg2.connect(
+        dbname=os.environ.get('DB_NAME', 'default_db_name'),
+        user=os.environ.get('DB_USER', 'postgres'),
+        password=os.environ.get('DB_PASSWORD', 'postgres'),
+        host=os.environ.get('DB_HOST', 'localhost'),
+        port=os.environ.get('DB_PORT', '5432'),
+        connect_timeout=2,  # 2 seconds timeout
+    )
+    conn.close()
+
+    # If successful, override with PostgreSQL config
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'default_db_name'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
+    }
+    print("✅ Using PostgreSQL database.")
+except OperationalError:
+    print("⚠️ PostgreSQL not available — using SQLite database.")
 
 
 # Password validation
