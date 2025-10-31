@@ -1,0 +1,31 @@
+env/
+# Python
+__pycache__/
+*.pyc
+*.log
+*.sqlite3
+.env
+venv/
+.venv/
+
+# Django
+media/
+static_collected/
+staticfiles/
+
+# Docker
+.dockerignore
+!docker-compose.yml # Include docker-compose.yml if you want it in your repo
+!Dockerfile # Include Dockerfile if you want it in your repo
+
+# Celery
+celerybeat-schedule
+celeryd.pid
+
+# IDE-specific files (e.g., VS Code, PyCharm)
+.vscode/
+.idea/
+
+# Operating System
+.DS_Store
+Thumbs.db

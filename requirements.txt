@@ -1,0 +1,23 @@
+# Django framework
+django
+
+# PostgreSQL
+psycopg2-binary
+
+# Redis caching
+django-redis
+
+# Environment management
+django-environ
+
+# (Optional) Background tasks
+celery[redis]
+
+# (Optional) Debugging
+django-debug-toolbar
+
+# Authentication & social login
+django-allauth
+
+
+python-dotenv
