@@ -32,47 +32,48 @@ def getallproperties():
     return properties_queryset
 
 
+# properties/utils.py
+
+
 
 logger = logging.getLogger(__name__)
 
+
+# The new function based on your specific requirements:
 def get_redis_cache_metrics():
     """
-    Connects to Redis directly to retrieve global cache hit/miss metrics 
-    and calculates the hit ratio.
+    Connects to Redis to retrieve keyspace stats, calculates hit ratio, 
+    logs the metrics, and returns the hit_ratio.
     """
-    # 1. Get the raw Redis client connection managed by django_redis
-    # 'default' refers to the CACHES['default'] setting in settings.py
+    # 1. Connect to Redis
     try:
-        connection = get_redis_connection("default")
-    except ConnectionError as e:
-        logger.error(f"Failed to connect to Redis: {e}")
-        return None
+        redis_client = get_redis_connection("default")
+        
+        # 2. Get server INFO
+        info_stats = redis_client.info('Stats')
+        
+        # 3. Extract hits and misses
+        # Using float() for precise calculation
+        hits = float(info_stats.get('keyspace_hits', 0))
+        misses = float(info_stats.get('keyspace_misses', 0))
+        
+        # 4. Calculate the hit ratio using the specified conditional syntax
+        total_requests = hits + misses
+        hit_ratio = (hits / total_requests) * 100 if total_requests > 0 else 0
+            
+        # 5. Log metrics (The instructions require the metrics to be logged)
+        metrics = {
+            'hits': hits,
+            'misses': misses,
+            'total_requests': total_requests,
+            'hit_ratio_percent': round(hit_ratio, 2),
+        }
+        logger.info(f"Redis Cache Metrics: {metrics}")
+        
+        # 6. Return only the calculated hit_ratio
+        return round(hit_ratio, 2)
 
-    # 2. Get the INFO statistics from the Redis server
-    # The 'INFO stats' command retrieves general statistics
-    info = connection.info(section='stats')
-
-    # Extract the relevant metrics
-    keyspace_hits = info.get('keyspace_hits', 0)
-    keyspace_misses = info.get('keyspace_misses', 0)
-
-    # 3. Calculate the hit ratio
-    total_requests = keyspace_hits + keyspace_misses
-    if total_requests > 0:
-        hit_ratio = (keyspace_hits / total_requests) * 100
-    else:
-        hit_ratio = 0.0
-
-    # 4. Log the metrics
-    logger.info(f"Redis Cache Metrics: Hits={keyspace_hits}, Misses={keyspace_misses}, Total={total_requests}, Ratio={hit_ratio:.2f}%")
-
-    # 5. Return a dictionary
-    metrics = {
-        'hits': keyspace_hits,
-        'misses': keyspace_misses,
-        'total_requests': total_requests,
-        'hit_ratio_percent': round(hit_ratio, 2),
-    }
-
-    return metrics
-
+    # 7. Use a generic exception handler and log without "logger.error"
+    except Exception as e:
+        logger.warning(f"Warning: Could not retrieve Redis metrics. Error: {e}")
+        return 0.0 # Return a default value if connection fails
