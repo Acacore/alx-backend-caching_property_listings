@@ -9,7 +9,7 @@ cmd="$@"
 
 echo "Waiting for Postgres at $host..."
 
-until PGPASSWORD=$POSTGRES_DB_PASSWORD psql -h "$host" -U "$POSTGRES_DB_USER" -c '\q'; do
+until PGPASSWORD=$POSTGRES_PASSWORD psql -h "$host" -U "$POSTGRES_USER" -c '\q'; do
   echo "Postgres is unavailable - sleeping 1 second"
   sleep 1
 done

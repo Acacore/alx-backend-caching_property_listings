@@ -93,32 +93,41 @@ WSGI_APPLICATION = 'alx_backend_caching_property_listings.wsgi.application'
 
 # Default to SQLite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+
+    'default' : {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_NAME', 'default_db_name'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 # Try connecting to PostgreSQL — if available, switch to it
 try:
     conn = psycopg2.connect(
-        dbname=os.environ.get('DB_NAME', 'default_db_name'),
-        user=os.environ.get('DB_USER', 'postgres'),
-        password=os.environ.get('DB_PASSWORD', 'postgres'),
-        host=os.environ.get('DB_HOST', 'localhost'),
-        port=os.environ.get('DB_PORT', '5432'),
-        connect_timeout=2,  # 2 seconds timeout
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_NAME', 'default_db_name'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     )
     conn.close()
 
     # If successful, override with PostgreSQL config
     DATABASES['default'] = {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRESS_DB_NAME', 'default_db_name'),
-        'USER': os.environ.get('POSTGRESS_DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('POSTGRESS_DB_PASSWORD', 'postgres'),
-        'HOST': os.environ.get('POSTGRESS_DB_HOST', 'localhost'),
-        'PORT': os.environ.get('POSTGRESS_DB_PORT', '5432'),
+        'NAME': os.environ.get('POSTGRES_NAME', 'default_db_name'),
+        'USER': os.environ.get('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
     }
     print("✅ Using PostgreSQL database.")
 except OperationalError:
