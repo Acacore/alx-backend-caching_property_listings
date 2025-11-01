@@ -4,7 +4,7 @@ from django_redis import get_redis_connection
 import logging
 
 
-def getallproperties():
+def get_all_properties():
     '''
     Retrieves all property object fro the cache or the database,
     and caches them in 1 hour.
