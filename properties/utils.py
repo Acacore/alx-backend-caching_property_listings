@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from .models import Property
 
-def getallproperties(key):
+def get_all_properties():
     '''
     Retrieves all property object fro the cache or the database,
     and caches them in 1 hour.
